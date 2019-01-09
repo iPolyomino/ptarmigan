@@ -1,25 +1,68 @@
-extern crate hyper;
-extern crate hyper_tls;
+#[macro_use]
+extern crate html5ever;
+extern crate reqwest;
 
-use hyper::rt::{self, Future, Stream};
-use hyper::Client;
-use hyper_tls::HttpsConnector;
+use std::default::Default;
+use std::iter::repeat;
+
+use html5ever::parse_document;
+use html5ever::rcdom::{Handle, NodeData, RcDom};
+use html5ever::tendril::TendrilSink;
+
+static URL: &str = "https://ipolyomino.github.io/simple-html/";
+
+fn walk(indent: usize, handle: Handle) {
+    let node = handle;
+    print!("{}", repeat(" ").take(indent).collect::<String>());
+    match node.data {
+        NodeData::Document => println!("#Document"),
+        NodeData::Doctype {
+            ref name,
+            ref public_id,
+            ref system_id,
+        } => println!("<!DOCTYPE {} \"{}\" \"{}\">", name, public_id, system_id),
+        NodeData::Text { ref contents } => {
+            println!("#Text: {}", escape_default(&contents.borrow()))
+        }
+        NodeData::Comment { ref contents } => println!("<!-- {} -->", escape_default(contents)),
+        NodeData::Element {
+            ref name,
+            ref attrs,
+            ..
+        } => {
+            assert!(name.ns == ns!(html));
+            print!("<{}", name.local);
+            for attr in attrs.borrow().iter() {
+                print!(" {}=\"{}\"", attr.name.local, attr.value);
+            }
+            println!(">");
+        }
+        NodeData::ProcessingInstruction { .. } => unreachable!(),
+    }
+    for child in node.children.borrow().iter() {
+        walk(indent + 4, child.clone());
+    }
+}
+
+pub fn escape_default(s: &str) -> String {
+    s.chars().flat_map(|c| c.escape_default()).collect()
+}
 
 fn main() {
-    let uri = "https://polyomino.jp".parse().unwrap();
+    let mut response = reqwest::get(URL).unwrap();
+    let dom = parse_document(RcDom::default(), Default::default())
+        .from_utf8()
+        .read_from(&mut response)
+        .unwrap();
+    if !dom.errors.is_empty() {
+        eprintln!("parse error");
+        for err in dom.errors.into_iter() {
+            eprintln!("{}", err);
+        }
+        return;
+    }
 
-    rt::run(rt::lazy(|| {
-        // 4 is number of blocking DNS threads
-        let https = HttpsConnector::new(4).unwrap();
-        let client = Client::builder().build::<_, hyper::Body>(https);
-
-        client
-            .get(uri)
-            .and_then(|res| {
-                println!("status: {}", res.status());
-                res.into_body().concat2()
-            })
-            .map(|body| println!("body: {}", String::from_utf8(body.to_vec()).unwrap()))
-            .map_err(|e| println!("error: {}", e))
-    }));
+    let handle = dom.document;
+    let indent = 0;
+    walk(indent, handle);
 }
