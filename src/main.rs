@@ -11,18 +11,23 @@ use html5ever::tendril::TendrilSink;
 
 static URL: &str = "https://ipolyomino.github.io/simple-html/";
 
-fn walk(indent: usize, handle: Handle) {
+fn walk(mut indent: usize, handle: Handle) {
     let node = handle;
     print!("{}", repeat(" ").take(indent).collect::<String>());
     match node.data {
-        NodeData::Document => println!("#Document"),
+        NodeData::Document => {
+            println!("#Document");
+            indent += 4;
+        },
         NodeData::Doctype {
             ref name,
             ref public_id,
             ref system_id,
         } => println!("<!DOCTYPE {} \"{}\" \"{}\">", name, public_id, system_id),
         NodeData::Text { ref contents } => {
-            println!("#Text: {}", escape_default(&contents.borrow()))
+            if !contents.borrow().contains("\n") {
+                println!("#Text: {}", escape_default(&contents.borrow()))
+            }
         }
         NodeData::Comment { ref contents } => println!("<!-- {} -->", escape_default(contents)),
         NodeData::Element {
@@ -40,7 +45,7 @@ fn walk(indent: usize, handle: Handle) {
         NodeData::ProcessingInstruction { .. } => unreachable!(),
     }
     for child in node.children.borrow().iter() {
-        walk(indent + 4, child.clone());
+        walk(indent, child.clone());
     }
 }
 
