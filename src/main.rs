@@ -1,7 +1,7 @@
 extern crate ptarmigan;
 
-use ptarmigan::parser::Parser;
 use ptarmigan::lexer::Lexer;
+use ptarmigan::parser::Parser;
 
 const SAMPLE_HTML: &'static str = "
 <p>
@@ -10,6 +10,7 @@ const SAMPLE_HTML: &'static str = "
 ";
 
 fn main() {
-    let l : Lexer = Lexer::new(SAMPLE_HTML.to_string());
-    let _ : Parser = Parser::new(l);
+    let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
+    let mut p: Parser = Parser::new(l);
+    p.parse_html();
 }
