@@ -10,7 +10,7 @@ pub struct Parser {
 impl Parser {
     pub fn new(l: Lexer) -> Parser {
         let initial_token = Token {
-            token_type: EOF.to_string(),
+            token_type: None,
             literal: "Hello".to_string(),
         };
 
@@ -21,14 +21,17 @@ impl Parser {
     }
 
     pub fn parse_html(&mut self) -> HTML {
-        let mut html = HTML {
+        let html = HTML {
             statements: Vec::new(),
         };
 
-        println!("{}", self.current_token.token_type);
-        while self.current_token.token_type != EOF {
-            self.current_token.token_type = EOF.to_string();
-            println!("{}", self.current_token.token_type);
+        loop {
+            if let Some(tt) = &self.current_token.token_type {
+                if tt == EOF {
+                    break;
+                }
+            }
+            self.current_token.token_type = Some(EOF.to_string());
             self.l.read_char();
         }
 

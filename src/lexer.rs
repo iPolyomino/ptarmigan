@@ -7,12 +7,14 @@ pub struct Lexer {
 
 impl Lexer {
     pub fn new(input: String) -> Lexer {
-        Lexer {
+        let mut l = Lexer {
             input: input,
             position: 0,
             read_position: 1,
             ch: None,
-        }
+        };
+        l.read_char();
+        l
     }
     pub fn read_char(&mut self) {
         if self.read_position >= self.input.len() {
@@ -22,10 +24,4 @@ impl Lexer {
             self.read_position += 1;
         }
     }
-}
-
-fn new(input: String) -> Lexer {
-    let mut l = Lexer::new(input);
-    l.read_char();
-    l
 }
