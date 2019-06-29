@@ -1,8 +1,11 @@
-use crate::token::HyperText;
+use crate::lexer::Lexer;
 
-pub fn parse_html(html: &'static str) -> HyperText {
-    HyperText {
-        tag: None,
-        text: html,
+pub struct Parser {
+    l: Lexer,
+}
+
+impl Parser {
+    pub fn new(l: Lexer) -> Parser {
+        Parser { l: l }
     }
 }

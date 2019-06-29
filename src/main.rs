@@ -1,11 +1,15 @@
 extern crate ptarmigan;
 
-use ptarmigan::parser::parse_html;
-use ptarmigan::token::HyperText;
+use ptarmigan::parser::Parser;
+use ptarmigan::lexer::Lexer;
 
-const SAMPLE_HTML: &'static str = "hello world";
+const SAMPLE_HTML: &'static str = "
+<p>
+  hello world
+</p>
+";
 
 fn main() {
-    let ht: HyperText = parse_html(SAMPLE_HTML);
-    println!("{}", ht.text);
+    let l : Lexer = Lexer::new(SAMPLE_HTML.to_string());
+    let _ : Parser = Parser::new(l);
 }
