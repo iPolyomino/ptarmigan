@@ -1,23 +1,9 @@
-pub struct Statement {}
-
-impl Statement {
-    pub fn statement_node() {}
-}
-
-pub trait Node {
-    fn token_literal() -> String;
-    fn string() -> String;
-}
-
-impl Node for Statement {
-    fn token_literal() -> String {
-        "Hello".to_string()
-    }
-    fn string() -> String {
-        "Hi".to_string()
-    }
+pub struct Tag {
+    pub name: String,
+    pub attribute: Option<String>,
+    pub text: Option<String>,
 }
 
 pub struct HTML {
-    pub statements: Vec<Statement>,
+    pub tag: Vec<Tag>,
 }
