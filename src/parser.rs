@@ -1,4 +1,4 @@
-use crate::ast::{HTML, Tag};
+use crate::ast::{Tag, HTML};
 use crate::lexer::Lexer;
 use crate::token::*;
 
@@ -16,15 +16,20 @@ impl Parser {
             literal: "Hello".to_string(),
         };
         let initial_peek = Token {
-            token_type: None,
-            literal: "Hello".to_string(),
+            token_type: Some(EOF.to_string()),
+            literal: "EOF".to_string(),
         };
 
-        Parser {
+        let mut p: Parser = Parser {
             l: l,
             current_token: initial_current,
             peek_token: initial_peek,
-        }
+        };
+
+        p.next_token();
+        p.next_token();
+
+        p
     }
 
     pub fn next_token(&mut self) {
@@ -33,9 +38,7 @@ impl Parser {
     }
 
     pub fn parse_html(&mut self) -> HTML {
-        let html = HTML {
-            tag: Vec::new(),
-        };
+        let html = HTML { tag: Vec::new() };
 
         loop {
             if let Some(tt) = &self.current_token.token_type {
@@ -43,7 +46,7 @@ impl Parser {
                     break;
                 }
             }
-            self.current_token.token_type = Some(EOF.to_string());
+            self.next_token();
             self.l.read_char();
         }
 
