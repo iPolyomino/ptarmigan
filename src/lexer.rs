@@ -22,7 +22,7 @@ impl Lexer {
 
     pub fn read_char(&mut self) {
         if self.read_position >= self.input.len() {
-            self.ch = '0';
+            self.ch = '\0';
         } else {
             self.ch = self.input.chars().nth(self.read_position).unwrap_or(' ');
             self.read_position += 1;
@@ -30,11 +30,23 @@ impl Lexer {
     }
 
     pub fn next_token(&mut self) -> Token {
-        println!("{}", self.ch);
-
         let mut tok: Token;
 
+        self.skip_white_space();
+
         match self.ch {
+            '<' => {
+                tok = Token {
+                    token_type: Some(LT.to_string()),
+                    literal: self.ch.to_string(),
+                }
+            }
+            '>' => {
+                tok = Token {
+                    token_type: Some(GT.to_string()),
+                    literal: self.ch.to_string(),
+                }
+            }
             '/' => {
                 tok = Token {
                     token_type: Some(SLASH.to_string()),
@@ -47,7 +59,7 @@ impl Lexer {
                     literal: self.ch.to_string(),
                 }
             }
-            '0' => {
+            '\0' => {
                 tok = Token {
                     token_type: Some(EOF.to_string()),
                     literal: "".to_string(),
@@ -62,5 +74,11 @@ impl Lexer {
         }
 
         tok
+    }
+
+    fn skip_white_space(&mut self) {
+        while self.ch == ' ' || self.ch == '\t' || self.ch == '\n' || self.ch == '\r' {
+            self.read_char();
+        }
     }
 }

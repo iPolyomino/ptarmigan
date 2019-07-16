@@ -32,7 +32,7 @@ impl Parser {
         p
     }
 
-    pub fn next_token(&mut self) {
+    fn next_token(&mut self) {
         self.current_token = self.peek_token.clone();
         self.peek_token = self.l.next_token();
     }
@@ -53,7 +53,7 @@ impl Parser {
         html
     }
 
-    pub fn parse_tag(&mut self) -> Tag {
+    fn parse_tag(&mut self) -> Tag {
         let tag = Tag {
             name: "p".to_string(),
             attribute: None,
