@@ -20,15 +20,6 @@ impl Lexer {
         l
     }
 
-    pub fn read_char(&mut self) {
-        if self.read_position >= self.input.len() {
-            self.ch = '\0';
-        } else {
-            self.ch = self.input.chars().nth(self.read_position).unwrap_or(' ');
-            self.read_position += 1;
-        }
-    }
-
     pub fn next_token(&mut self) -> Token {
         let mut tok: Token;
 
@@ -73,12 +64,30 @@ impl Lexer {
             }
         }
 
+        self.read_char();
+
         tok
     }
 
     fn skip_white_space(&mut self) {
         while self.ch == ' ' || self.ch == '\t' || self.ch == '\n' || self.ch == '\r' {
             self.read_char();
+        }
+    }
+
+    fn read_char(&mut self) {
+        if self.read_position >= self.input.len() {
+            self.ch = '\0';
+        } else {
+            self.ch = self.input.chars().nth(self.read_position).unwrap_or(' ');
+            self.read_position += 1;
+        }
+    }
+
+    fn new_token(self, token_type: TokenType, ch: String) -> Token {
+        Token {
+            token_type: Some(token_type),
+            literal: ch,
         }
     }
 }

@@ -13,11 +13,11 @@ impl Parser {
     pub fn new(l: Lexer) -> Parser {
         let initial_current = Token {
             token_type: None,
-            literal: "Hello".to_string(),
+            literal: " ".to_string(),
         };
         let initial_peek = Token {
-            token_type: Some(EOF.to_string()),
-            literal: "EOF".to_string(),
+            token_type: None,
+            literal: " ".to_string(),
         };
 
         let mut p: Parser = Parser {
@@ -38,24 +38,26 @@ impl Parser {
     }
 
     pub fn parse_html(&mut self) -> HTML {
-        let html = HTML { tag: Vec::new() };
+        let mut html = HTML { tag: Vec::new() };
 
-        loop {
-            if let Some(tt) = &self.current_token.token_type {
-                if tt == EOF {
-                    break;
-                }
+        while let Some(tt) = &self.current_token.token_type {
+            if tt == EOF {
+                break;
             }
+
+            let tag: Tag = self.parse_tag();
+            html.tag.push(tag);
+
             self.next_token();
-            self.l.read_char();
         }
 
         html
     }
 
     fn parse_tag(&mut self) -> Tag {
+        // dummy tag
         let tag = Tag {
-            name: "p".to_string(),
+            name: self.current_token.literal.clone(),
             attribute: None,
             text: Some("Hello".to_string()),
         };
