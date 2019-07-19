@@ -83,11 +83,4 @@ impl Lexer {
             self.read_position += 1;
         }
     }
-
-    fn new_token(self, token_type: TokenType, ch: String) -> Token {
-        Token {
-            token_type: Some(token_type),
-            literal: ch,
-        }
-    }
 }
