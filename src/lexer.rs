@@ -21,7 +21,7 @@ impl Lexer {
     }
 
     pub fn next_token(&mut self) -> Token {
-        let mut tok: Token;
+        let tok: Token;
 
         self.skip_white_space();
 

@@ -4,9 +4,9 @@ pub const EOF: &str = "EOF";
 
 pub const IDENT: &str = "IDENT";
 
-pub const LT: &str = "<";
-pub const GT: &str = ">";
-pub const SLASH: &str = "/";
+pub const LT: &str = "LT";
+pub const GT: &str = "GT";
+pub const SLASH: &str = "SLASH";
 
 pub const TEXT: &str = "TEXT";
 
