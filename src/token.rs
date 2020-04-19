@@ -1,11 +1,11 @@
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TokenType {
-    EOF,
     IDENT,
     LT,
     GT,
     SLASH,
     TEXT,
+    EOF,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

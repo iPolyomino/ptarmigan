@@ -27,42 +27,45 @@ impl Lexer {
 
         match self.ch {
             '<' => {
-                self.read_char();
-                let mut buf = "".to_string();
-                while self.ch != '>' {
-                    buf += &self.ch.to_string();
-                    self.read_char();
+                tok = Token {
+                    token_type: Some(TokenType::LT),
+                    literal: self.ch.to_string(),
                 }
-                self.read_char();
-
+            }
+            '>' => {
+                tok = Token {
+                    token_type: Some(TokenType::GT),
+                    literal: self.ch.to_string(),
+                }
+            }
+            '/' => {
+                tok = Token {
+                    token_type: Some(TokenType::SLASH),
+                    literal: self.ch.to_string(),
+                }
+            }
+            'p' => {
                 tok = Token {
                     token_type: Some(TokenType::IDENT),
-                    literal: buf + &self.ch.to_string(),
-                };
+                    literal: self.ch.to_string(),
+                }
             }
             '\0' => {
                 tok = Token {
                     token_type: Some(TokenType::EOF),
                     literal: "".to_string(),
-                };
-                self.read_char();
+                }
             }
             _ => {
-                let mut buf = self.ch.to_string();
-                self.read_char();
-                while self.ch != '<' && self.ch != '\0' {
-                    buf += &self.ch.to_string();
-                    self.read_char();
-                }
-
                 tok = Token {
                     token_type: Some(TokenType::TEXT),
-                    literal: buf,
-                };
+                    literal: self.ch.to_string(),
+                }
             }
         }
 
-        println!("{}", tok.literal);
+        self.read_char();
+
         tok
     }
 

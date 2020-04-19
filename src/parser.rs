@@ -42,12 +42,12 @@ impl Parser {
 
         while let Some(tt) = &self.current_token.token_type {
             match tt {
-                TokenType::IDENT => {
+                TokenType::IDENT => self.next_token(),
+                TokenType::LT => {
                     let tag: Tag = self.parse_tag();
                     html.tag.push(tag);
                     self.next_token();
                 }
-                TokenType::LT => self.next_token(),
                 TokenType::GT => self.next_token(),
                 TokenType::SLASH => self.next_token(),
                 TokenType::TEXT => self.next_token(),
@@ -59,11 +59,34 @@ impl Parser {
     }
 
     fn parse_tag(&mut self) -> Tag {
-        // dummy tag
+        // read LT
+        self.next_token();
+
+        let mut tag_name = "".to_string();
+
+        while self.current_token.token_type.as_ref().unwrap() == &TokenType::IDENT {
+            tag_name = [tag_name, self.current_token.literal.clone()].concat();
+            self.next_token();
+        }
+
+        if self.current_token.token_type.as_ref().unwrap() == &TokenType::SLASH {
+            // read SLASH
+            self.next_token();
+        }
+
+        // read GT
+        self.next_token();
+
+        let mut text = "".to_string();
+        while self.current_token.token_type.as_ref().unwrap() == &TokenType::TEXT {
+            text = [text, self.current_token.literal.clone()].concat();
+            self.next_token();
+        }
+
         let tag = Tag {
-            name: self.current_token.literal.clone(),
+            name: tag_name,
             attribute: None,
-            text: Some("Hello".to_string()),
+            text: Some(text),
         };
 
         tag
