@@ -1,14 +1,12 @@
-pub type TokenType = String;
-
-pub const EOF: &str = "EOF";
-
-pub const IDENT: &str = "IDENT";
-
-pub const LT: &str = "LT";
-pub const GT: &str = "GT";
-pub const SLASH: &str = "SLASH";
-
-pub const TEXT: &str = "TEXT";
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum TokenType {
+    EOF,
+    IDENT,
+    LT,
+    GT,
+    SLASH,
+    TEXT,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Token {

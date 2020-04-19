@@ -1,4 +1,4 @@
-use crate::token::*;
+use crate::token::{Token, TokenType};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Lexer {
@@ -27,45 +27,42 @@ impl Lexer {
 
         match self.ch {
             '<' => {
-                tok = Token {
-                    token_type: Some(LT.to_string()),
-                    literal: self.ch.to_string(),
+                self.read_char();
+                let mut buf = "".to_string();
+                while self.ch != '>' {
+                    buf += &self.ch.to_string();
+                    self.read_char();
                 }
-            }
-            '>' => {
+                self.read_char();
+
                 tok = Token {
-                    token_type: Some(GT.to_string()),
-                    literal: self.ch.to_string(),
-                }
-            }
-            '/' => {
-                tok = Token {
-                    token_type: Some(SLASH.to_string()),
-                    literal: self.ch.to_string(),
-                }
-            }
-            'p' => {
-                tok = Token {
-                    token_type: Some(IDENT.to_string()),
-                    literal: self.ch.to_string(),
-                }
+                    token_type: Some(TokenType::IDENT),
+                    literal: buf + &self.ch.to_string(),
+                };
             }
             '\0' => {
                 tok = Token {
-                    token_type: Some(EOF.to_string()),
+                    token_type: Some(TokenType::EOF),
                     literal: "".to_string(),
-                }
+                };
+                self.read_char();
             }
             _ => {
-                tok = Token {
-                    token_type: Some(TEXT.to_string()),
-                    literal: self.ch.to_string(),
+                let mut buf = self.ch.to_string();
+                self.read_char();
+                while self.ch != '<' && self.ch != '\0' {
+                    buf += &self.ch.to_string();
+                    self.read_char();
                 }
+
+                tok = Token {
+                    token_type: Some(TokenType::TEXT),
+                    literal: buf,
+                };
             }
         }
 
-        self.read_char();
-
+        println!("{}", tok.literal);
         tok
     }
 

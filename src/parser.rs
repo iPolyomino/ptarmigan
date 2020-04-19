@@ -1,6 +1,6 @@
 use crate::ast::{Tag, HTML};
 use crate::lexer::Lexer;
-use crate::token::*;
+use crate::token::{Token, TokenType};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Parser {
@@ -41,14 +41,18 @@ impl Parser {
         let mut html = HTML { tag: Vec::new() };
 
         while let Some(tt) = &self.current_token.token_type {
-            if tt == EOF {
-                break;
+            match tt {
+                TokenType::IDENT => {
+                    let tag: Tag = self.parse_tag();
+                    html.tag.push(tag);
+                    self.next_token();
+                }
+                TokenType::LT => self.next_token(),
+                TokenType::GT => self.next_token(),
+                TokenType::SLASH => self.next_token(),
+                TokenType::TEXT => self.next_token(),
+                TokenType::EOF => break,
             }
-
-            let tag: Tag = self.parse_tag();
-            html.tag.push(tag);
-
-            self.next_token();
         }
 
         html
