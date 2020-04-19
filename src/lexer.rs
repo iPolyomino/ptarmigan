@@ -84,3 +84,23 @@ impl Lexer {
         }
     }
 }
+
+#[test]
+fn test_lexer() {
+    const SAMPLE_HTML: &'static str = "
+<p>
+  hello world
+</p>
+";
+    let lexer: Lexer = Lexer::new(SAMPLE_HTML.to_string());
+
+    assert_eq!(
+        lexer,
+        Lexer {
+            input: "\n<p>\n  hello world\n</p>\n".to_string(),
+            position: 0,
+            read_position: 2,
+            ch: '<'
+        }
+    );
+}

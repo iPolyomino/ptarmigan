@@ -92,3 +92,26 @@ impl Parser {
         tag
     }
 }
+
+#[test]
+fn test_parser() {
+    const SAMPLE_HTML: &'static str = "
+<p>
+  hello world
+</p>
+";
+    let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
+    let mut p: Parser = Parser::new(l);
+    let ast = p.parse_html();
+
+    assert_eq!(
+        ast,
+        HTML {
+            tag: vec![Tag {
+                name: "p".to_string(),
+                attribute: None,
+                text: Some("helloworld".to_string())
+            }]
+        }
+    );
+}
