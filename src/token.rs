@@ -10,7 +10,7 @@ pub const SLASH: &str = "SLASH";
 
 pub const TEXT: &str = "TEXT";
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Token {
     pub token_type: Option<TokenType>,
     pub literal: String,

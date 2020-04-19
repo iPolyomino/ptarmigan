@@ -2,7 +2,7 @@ use crate::ast::{Tag, HTML};
 use crate::lexer::Lexer;
 use crate::token::*;
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Parser {
     l: Lexer,
     current_token: Token,

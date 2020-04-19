@@ -12,5 +12,6 @@ const SAMPLE_HTML: &'static str = "
 fn main() {
     let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
     let mut p: Parser = Parser::new(l);
-    p.parse_html();
+    let ast = p.parse_html();
+    println!("{:?}", ast);
 }
