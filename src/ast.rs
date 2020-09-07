@@ -2,7 +2,7 @@
 pub struct Tag {
     pub name: String,
     pub attribute: Option<String>,
-    pub text: Option<String>,
+    pub texts: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

@@ -5,7 +5,7 @@ use ptarmigan::parser::Parser;
 
 const SAMPLE_HTML: &'static str = "
 <p>
-  hello world
+  <span>hello world</span>
 </p>
 ";
 

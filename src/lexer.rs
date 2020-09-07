@@ -1,5 +1,7 @@
 use crate::token::{Token, TokenType};
 
+static HTML_TAGS: &'static [&str] = &["p", "span"];
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Lexer {
     pub input: String,
@@ -11,7 +13,7 @@ pub struct Lexer {
 impl Lexer {
     pub fn new(input: String) -> Lexer {
         let mut l = Lexer {
-            input: input,
+            input: input.to_owned(),
             position: 0,
             read_position: 1,
             ch: ' ',
@@ -44,10 +46,22 @@ impl Lexer {
                     literal: self.ch.to_string(),
                 }
             }
-            'p' => {
-                tok = Token {
-                    token_type: Some(TokenType::IDENT),
-                    literal: self.ch.to_string(),
+            'a'..='z' => {
+                let mut text = "".to_string();
+                while 'a' <= self.ch && self.ch <= 'z' {
+                    text.push(self.ch);
+                    self.read_char();
+                }
+                if HTML_TAGS.iter().any(|tag| tag == &text) {
+                    tok = Token {
+                        token_type: Some(TokenType::IDENT),
+                        literal: text,
+                    };
+                } else {
+                    tok = Token {
+                        token_type: Some(TokenType::TEXT),
+                        literal: text,
+                    }
                 }
             }
             '\0' => {

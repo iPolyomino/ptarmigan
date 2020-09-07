@@ -21,7 +21,7 @@ impl Parser {
         };
 
         let mut p: Parser = Parser {
-            l: l,
+            l: l.to_owned(),
             current_token: initial_current,
             peek_token: initial_peek,
         };
@@ -42,15 +42,30 @@ impl Parser {
 
         while let Some(tt) = &self.current_token.token_type {
             match tt {
-                TokenType::IDENT => self.next_token(),
-                TokenType::LT => {
+                TokenType::IDENT => {
                     let tag: Tag = self.parse_tag();
                     html.tag.push(tag);
                     self.next_token();
                 }
+                TokenType::LT => self.next_token(),
                 TokenType::GT => self.next_token(),
-                TokenType::SLASH => self.next_token(),
-                TokenType::TEXT => self.next_token(),
+                TokenType::SLASH => {
+                    if self.peek_token.token_type == Some(TokenType::IDENT) {
+                        // close tag
+                        self.next_token();
+                    }
+                    self.next_token();
+                }
+                TokenType::TEXT => {
+                    if let Some(last) = &html.tag.pop() {
+                        let mut last_clone = last.clone();
+                        last_clone
+                            .texts
+                            .push(self.current_token.literal.to_string());
+                        html.tag.push(last_clone);
+                    }
+                    self.next_token();
+                }
                 TokenType::EOF => break,
             }
         }
@@ -59,34 +74,10 @@ impl Parser {
     }
 
     fn parse_tag(&mut self) -> Tag {
-        // read LT
-        self.next_token();
-
-        let mut tag_name = "".to_string();
-
-        while self.current_token.token_type.as_ref().unwrap() == &TokenType::IDENT {
-            tag_name = [tag_name, self.current_token.literal.clone()].concat();
-            self.next_token();
-        }
-
-        if self.current_token.token_type.as_ref().unwrap() == &TokenType::SLASH {
-            // read SLASH
-            self.next_token();
-        }
-
-        // read GT
-        self.next_token();
-
-        let mut text = "".to_string();
-        while self.current_token.token_type.as_ref().unwrap() == &TokenType::TEXT {
-            text = [text, self.current_token.literal.clone()].concat();
-            self.next_token();
-        }
-
         let tag = Tag {
-            name: tag_name,
+            name: self.current_token.literal.clone(),
             attribute: None,
-            text: Some(text),
+            texts: vec![],
         };
 
         tag
@@ -97,7 +88,7 @@ impl Parser {
 fn test_parser() {
     const SAMPLE_HTML: &'static str = "
 <p>
-  hello world
+  <span>hello world</span>
 </p>
 ";
     let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
@@ -107,11 +98,18 @@ fn test_parser() {
     assert_eq!(
         ast,
         HTML {
-            tag: vec![Tag {
-                name: "p".to_string(),
-                attribute: None,
-                text: Some("helloworld".to_string())
-            }]
+            tag: vec![
+                Tag {
+                    name: "p".to_string(),
+                    attribute: None,
+                    texts: vec![]
+                },
+                Tag {
+                    name: "span".to_string(),
+                    attribute: None,
+                    texts: vec!["hello".to_string(), "world".to_string()]
+                }
+            ]
         }
     );
 }
