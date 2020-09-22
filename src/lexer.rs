@@ -52,6 +52,8 @@ impl Lexer {
                     text.push(self.ch);
                     self.read_char();
                 }
+                self.back_char();
+
                 if HTML_TAGS.iter().any(|tag| tag == &text) {
                     tok = Token {
                         token_type: Some(TokenType::IDENT),
@@ -96,6 +98,11 @@ impl Lexer {
             self.ch = self.input.chars().nth(self.read_position).unwrap_or(' ');
             self.read_position += 1;
         }
+    }
+
+    fn back_char(&mut self) {
+        self.ch = self.input.chars().nth(self.read_position).unwrap_or(' ');
+        self.read_position -= 1;
     }
 }
 

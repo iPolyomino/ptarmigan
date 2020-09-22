@@ -43,11 +43,30 @@ impl Parser {
         while let Some(tt) = &self.current_token.token_type {
             match tt {
                 TokenType::IDENT => {
-                    let tag: Tag = self.parse_tag();
-                    html.tag.push(tag);
                     self.next_token();
                 }
-                TokenType::LT => self.next_token(),
+                TokenType::LT => {
+                    let mut text_buffer = vec![];
+                    text_buffer.push(self.current_token.literal.to_string());
+                    self.next_token();
+
+                    if self.current_token.token_type == Some(TokenType::SLASH) {
+                        text_buffer.push(self.current_token.literal.to_string());
+                        self.next_token();
+                    }
+
+                    if self.current_token.token_type == Some(TokenType::IDENT)
+                        && self.peek_token.token_type == Some(TokenType::GT)
+                    {
+                        let tag: Tag = self.parse_tag();
+                        html.tag.push(tag);
+                    } else {
+                        text_buffer.push(self.current_token.literal.to_string());
+                        self.next_token();
+                        // TODO: append text
+                    }
+                    self.next_token()
+                }
                 TokenType::GT => self.next_token(),
                 TokenType::SLASH => {
                     if self.peek_token.token_type == Some(TokenType::IDENT) {
@@ -74,13 +93,54 @@ impl Parser {
     }
 
     fn parse_tag(&mut self) -> Tag {
-        let tag = Tag {
-            name: self.current_token.literal.clone(),
-            attribute: None,
-            texts: vec![],
-        };
+        let tag_name = self.current_token.literal.clone();
+        self.next_token(); // read IDENT
+        self.next_token(); // read GT
+        let mut child: Vec<Tag> = vec![];
+        let mut texts: Vec<String> = vec![];
 
-        tag
+        while let Some(tt) = &self.current_token.token_type {
+            match tt {
+                TokenType::LT => {
+                    let mut is_close_tag = false;
+                    let mut text_buffer = vec![];
+                    text_buffer.push(self.current_token.literal.to_string());
+                    self.next_token();
+
+                    if self.current_token.token_type == Some(TokenType::SLASH) {
+                        text_buffer.push(self.current_token.literal.to_string());
+                        self.next_token();
+                        is_close_tag = true;
+                    }
+
+                    if self.current_token.token_type == Some(TokenType::IDENT)
+                        && self.peek_token.token_type == Some(TokenType::GT)
+                    {
+                        if !is_close_tag {
+                            child.push(self.parse_tag());
+                        }
+                    } else {
+                        text_buffer.push(self.current_token.literal.to_string());
+                        self.next_token();
+                        texts = text_buffer.clone();
+                    }
+                    self.next_token()
+                }
+                TokenType::TEXT => {
+                    texts.push(self.current_token.literal.to_string());
+                    self.next_token();
+                }
+                TokenType::EOF => break,
+                _ => self.next_token(),
+            }
+        }
+
+        Tag {
+            name: tag_name,
+            attribute: None,
+            texts,
+            child,
+        }
     }
 }
 
@@ -98,18 +158,17 @@ fn test_parser() {
     assert_eq!(
         ast,
         HTML {
-            tag: vec![
-                Tag {
-                    name: "p".to_string(),
-                    attribute: None,
-                    texts: vec![]
-                },
-                Tag {
+            tag: vec![Tag {
+                name: "p".to_string(),
+                attribute: None,
+                texts: vec![],
+                child: vec![Tag {
                     name: "span".to_string(),
                     attribute: None,
-                    texts: vec!["hello".to_string(), "world".to_string()]
-                }
-            ]
+                    texts: vec!["hello".to_string(), "world".to_string()],
+                    child: vec![]
+                }]
+            },]
         }
     );
 }
