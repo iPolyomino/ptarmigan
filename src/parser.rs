@@ -88,7 +88,18 @@ impl Parser {
                     if self.current_token.token_type == Some(TokenType::IDENT)
                         && self.peek_token.token_type == Some(TokenType::GT)
                     {
-                        if !is_close_tag {
+                        if is_close_tag {
+                            assert_eq!(
+                                self.current_token.literal, tag_name,
+                                "tags are not matched"
+                            );
+                            return Tag {
+                                name: tag_name,
+                                attribute: None,
+                                texts,
+                                child,
+                            };
+                        } else {
                             child.push(self.parse_tag());
                         }
                     } else {
@@ -146,11 +157,11 @@ fn test_parser() {
 }
 
 #[test]
-fn test_self_close_tag() {
+fn test_multi_tag() {
     const SAMPLE_HTML: &'static str = "
 <html>
+  <p>hello world</p>
   <span>hello world</span>
-  <br/>
 </html>
 ";
     let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
@@ -166,19 +177,57 @@ fn test_self_close_tag() {
                 texts: vec![],
                 child: vec![
                     Tag {
-                        name: "span".to_string(),
+                        name: "p".to_string(),
                         attribute: None,
                         texts: vec!["hello".to_string(), "world".to_string()],
                         child: vec![]
                     },
                     Tag {
-                        name: "br".to_string(),
+                        name: "span".to_string(),
                         attribute: None,
-                        texts: vec![],
+                        texts: vec!["hello".to_string(), "world".to_string()],
                         child: vec![]
-                    }
+                    },
                 ]
             },]
         }
     );
 }
+
+// #[test]
+// fn test_self_close_tag() {
+//     const SAMPLE_HTML: &'static str = "
+// <html>
+//   <span>hello world</span>
+//   <br/>
+// </html>
+// ";
+//     let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
+//     let mut p: Parser = Parser::new(l);
+//     let ast = p.parse_html();
+//
+//     assert_eq!(
+//         ast,
+//         HTML {
+//             tag: vec![Tag {
+//                 name: "html".to_string(),
+//                 attribute: None,
+//                 texts: vec![],
+//                 child: vec![
+//                     Tag {
+//                         name: "span".to_string(),
+//                         attribute: None,
+//                         texts: vec!["hello".to_string(), "world".to_string()],
+//                         child: vec![]
+//                     },
+//                     Tag {
+//                         name: "br".to_string(),
+//                         attribute: None,
+//                         texts: vec![],
+//                         child: vec![]
+//                     }
+//                 ]
+//             },]
+//         }
+//     );
+// }
