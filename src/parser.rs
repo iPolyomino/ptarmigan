@@ -42,50 +42,22 @@ impl Parser {
 
         while let Some(tt) = &self.current_token.token_type {
             match tt {
-                TokenType::IDENT => {
-                    self.next_token();
-                }
+                // HTML must start with '<'
                 TokenType::LT => {
                     let mut text_buffer = vec![];
                     text_buffer.push(self.current_token.literal.to_string());
-                    self.next_token();
-
-                    if self.current_token.token_type == Some(TokenType::SLASH) {
-                        text_buffer.push(self.current_token.literal.to_string());
-                        self.next_token();
-                    }
+                    self.next_token(); // read '<'
 
                     if self.current_token.token_type == Some(TokenType::IDENT)
                         && self.peek_token.token_type == Some(TokenType::GT)
                     {
                         let tag: Tag = self.parse_tag();
                         html.tag.push(tag);
-                    } else {
-                        text_buffer.push(self.current_token.literal.to_string());
-                        self.next_token();
-                        // TODO: append text
                     }
                     self.next_token()
                 }
-                TokenType::GT => self.next_token(),
-                TokenType::SLASH => {
-                    if self.peek_token.token_type == Some(TokenType::IDENT) {
-                        // close tag
-                        self.next_token();
-                    }
-                    self.next_token();
-                }
-                TokenType::TEXT => {
-                    if let Some(last) = &html.tag.pop() {
-                        let mut last_clone = last.clone();
-                        last_clone
-                            .texts
-                            .push(self.current_token.literal.to_string());
-                        html.tag.push(last_clone);
-                    }
-                    self.next_token();
-                }
                 TokenType::EOF => break,
+                _ => self.next_token(),
             }
         }
 
