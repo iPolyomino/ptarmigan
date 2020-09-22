@@ -1,6 +1,6 @@
 use crate::token::{Token, TokenType};
 
-static HTML_TAGS: &'static [&str] = &["p", "span"];
+static HTML_TAGS: &'static [&str] = &["html", "body", "br", "p", "span"];
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Lexer {

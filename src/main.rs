@@ -4,9 +4,11 @@ use ptarmigan::lexer::Lexer;
 use ptarmigan::parser::Parser;
 
 const SAMPLE_HTML: &'static str = "
-<p>
+<html>
   <span>hello world</span>
-</p>
+  <br/>
+  <p>this is test.</p>
+</html>
 ";
 
 fn main() {

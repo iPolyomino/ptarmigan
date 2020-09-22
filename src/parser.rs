@@ -144,3 +144,41 @@ fn test_parser() {
         }
     );
 }
+
+#[test]
+fn test_self_close_tag() {
+    const SAMPLE_HTML: &'static str = "
+<html>
+  <span>hello world</span>
+  <br/>
+</html>
+";
+    let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
+    let mut p: Parser = Parser::new(l);
+    let ast = p.parse_html();
+
+    assert_eq!(
+        ast,
+        HTML {
+            tag: vec![Tag {
+                name: "html".to_string(),
+                attribute: None,
+                texts: vec![],
+                child: vec![
+                    Tag {
+                        name: "span".to_string(),
+                        attribute: None,
+                        texts: vec!["hello".to_string(), "world".to_string()],
+                        child: vec![]
+                    },
+                    Tag {
+                        name: "br".to_string(),
+                        attribute: None,
+                        texts: vec![],
+                        child: vec![]
+                    }
+                ]
+            },]
+        }
+    );
+}
