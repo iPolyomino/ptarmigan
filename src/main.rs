@@ -7,6 +7,7 @@ const SAMPLE_HTML: &'static str = "
 <html>
   <span>hello world</span>
   <p>this is test.</p>
+  <br/>
 </html>
 ";
 

@@ -102,6 +102,21 @@ impl Parser {
                         } else {
                             child.push(self.parse_tag());
                         }
+                    } else if self.current_token.token_type == Some(TokenType::IDENT)
+                        && self.peek_token.token_type == Some(TokenType::SLASH)
+                    {
+                        let lit_str = self.current_token.literal.to_string();
+
+                        self.next_token();
+
+                        assert_eq!(self.peek_token.token_type, Some(TokenType::GT));
+
+                        child.push(Tag {
+                            name: lit_str,
+                            attribute: None,
+                            texts: vec![],
+                            child: vec![],
+                        });
                     } else {
                         text_buffer.push(self.current_token.literal.to_string());
                         self.next_token();
@@ -194,40 +209,40 @@ fn test_multi_tag() {
     );
 }
 
-// #[test]
-// fn test_self_close_tag() {
-//     const SAMPLE_HTML: &'static str = "
-// <html>
-//   <span>hello world</span>
-//   <br/>
-// </html>
-// ";
-//     let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
-//     let mut p: Parser = Parser::new(l);
-//     let ast = p.parse_html();
-//
-//     assert_eq!(
-//         ast,
-//         HTML {
-//             tag: vec![Tag {
-//                 name: "html".to_string(),
-//                 attribute: None,
-//                 texts: vec![],
-//                 child: vec![
-//                     Tag {
-//                         name: "span".to_string(),
-//                         attribute: None,
-//                         texts: vec!["hello".to_string(), "world".to_string()],
-//                         child: vec![]
-//                     },
-//                     Tag {
-//                         name: "br".to_string(),
-//                         attribute: None,
-//                         texts: vec![],
-//                         child: vec![]
-//                     }
-//                 ]
-//             },]
-//         }
-//     );
-// }
+#[test]
+fn test_self_close_tag() {
+    const SAMPLE_HTML: &'static str = "
+<html>
+  <span>hello world</span>
+  <br/>
+</html>
+";
+    let l: Lexer = Lexer::new(SAMPLE_HTML.to_string());
+    let mut p: Parser = Parser::new(l);
+    let ast = p.parse_html();
+
+    assert_eq!(
+        ast,
+        HTML {
+            tag: vec![Tag {
+                name: "html".to_string(),
+                attribute: None,
+                texts: vec![],
+                child: vec![
+                    Tag {
+                        name: "span".to_string(),
+                        attribute: None,
+                        texts: vec!["hello".to_string(), "world".to_string()],
+                        child: vec![]
+                    },
+                    Tag {
+                        name: "br".to_string(),
+                        attribute: None,
+                        texts: vec![],
+                        child: vec![]
+                    }
+                ]
+            },]
+        }
+    );
+}
