@@ -88,6 +88,7 @@ impl Parser {
                     if self.current_token.token_type == Some(TokenType::IDENT)
                         && self.peek_token.token_type == Some(TokenType::GT)
                     {
+                        // parse normal tag
                         if is_close_tag {
                             assert_eq!(
                                 self.current_token.literal, tag_name,
@@ -105,12 +106,10 @@ impl Parser {
                     } else if self.current_token.token_type == Some(TokenType::IDENT)
                         && self.peek_token.token_type == Some(TokenType::SLASH)
                     {
+                        // parse self close tag
                         let lit_str = self.current_token.literal.to_string();
-
                         self.next_token();
-
                         assert_eq!(self.peek_token.token_type, Some(TokenType::GT));
-
                         child.push(Tag {
                             name: lit_str,
                             attribute: None,
